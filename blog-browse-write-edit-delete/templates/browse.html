@@ -1,0 +1,21 @@
+<html>
+    <head>
+        <title>Browse entries</title>
+    </head>
+<body>
+    <h1>Browse entries</h1>
+    {% if entries|length > 0 %}
+        <ul>
+        {% for entry in entries %}
+            <li><b>{{ entry.title }}</b> ({{ entry.date }})
+            <p>
+            {{ entry.content }}
+            <hr>
+        {% endfor %}
+        </ul>
+    {% else %}
+        This blog is empty.<p>
+    {% endif %}
+    <a href="{{ url_for('homepage') }}">Back to homepage</a>
+</body>
+</html>

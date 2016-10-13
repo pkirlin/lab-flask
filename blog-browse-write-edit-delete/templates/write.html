@@ -1,0 +1,20 @@
+<html>
+    <head>
+        <title>Browse entries</title>
+    </head>
+<body>
+    <h1>Write an entry</h1>
+    {% if step=="compose_entry" %}
+        <form action="{{ url_for('write') }}" method="post">
+        Title: <input type="text" size="30" name="title"><br>
+        Text: <textarea name="content" rows="5" cols="40"></textarea><br>
+        <input type="hidden" name="step" value="add_entry">
+        <input type="submit">
+        </form>
+    {% elif step == "add_entry" %}
+        Your post has been submitted.
+        <p>
+        <a href="{{ url_for('homepage') }}">Back to homepage</a>
+    {% endif %}
+</body>
+</html>

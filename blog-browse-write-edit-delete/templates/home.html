@@ -1,0 +1,14 @@
+<html>
+    <head>
+        <title>Blog</title>
+    </head>
+<body>
+    <h1>Blog Homepage</h1>
+    <ul>
+        <li><a href="{{ url_for('browse') }}">List all entries</a>
+        <li><a href="{{ url_for('write') }}">Write a new entry</a>
+        <li><a href="{{ url_for('edit') }}">Edit an entry</a>
+        <li><a href="{{ url_for('delete') }}">Delete an entry</a>
+    </ul>
+</body>
+</html>

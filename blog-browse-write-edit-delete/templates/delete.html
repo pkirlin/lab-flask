@@ -1,0 +1,33 @@
+<html>
+    <head>
+        <title>Delete an entry</title>
+    </head>
+<body>
+    <h1>Delete an entry</h1>
+    {% if step == "display_entries" %}
+        {% if entries|length > 0 %}
+            Choose an entry to edit:
+            <form action="{{ url_for('delete') }}" method="post">
+            <table border="1">
+            <tr><td></td><td>Date</td><td>Title</td></tr>
+            {% for entry in entries %}
+                <tr><td><input type="radio" name="postid" value="{{entry.id}}"></td>
+                <td>{{ entry.date }}</td><td>{{ entry.title }}</td></tr>
+            {% endfor %}
+            </table>
+            <input type="hidden" name="step" value="delete_entry">
+            <input type="submit">
+            </form>
+        {% else %}
+            There are no entries.
+            <p>
+            <a href="{{ url_for('homepage') }}">Back to homepage</a>
+        {% endif %}
+        
+    {% elif step == "delete_entry" %}
+        Entry has been deleted.
+        <p>
+        <a href="{{ url_for('homepage') }}">Back to homepage</a>
+    {% endif %}
+</body>
+</html>

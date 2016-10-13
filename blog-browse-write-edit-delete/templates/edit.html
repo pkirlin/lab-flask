@@ -1,0 +1,44 @@
+<html>
+    <head>
+        <title>Edit an entry</title>
+    </head>
+<body>
+    <h1>Edit an entry</h1>
+    {% if step == "display_entries" %}
+        {% if entries|length > 0 %}
+            Choose an entry to edit:
+            <form action="{{ url_for('edit') }}" method="post">
+            <table border="1">
+            <tr><td></td><td>Date</td><td>Title</td></tr>
+            {% for entry in entries %}
+                <tr><td><input type="radio" name="postid" value="{{entry.id}}"></td>
+                <td>{{ entry.date }}</td><td>{{ entry.title }}</td></tr>
+            {% endfor %}
+            </table>
+            <input type="hidden" name="step" value="make_edits">
+            <input type="submit">
+            </form>
+        {% else %}
+            There are no entries.
+            <p>
+            <a href="{{ url_for('homepage') }}">Back to homepage</a>
+        {% endif %}
+    
+    {% elif step == "make_edits" %}
+        Edit your entry:
+        <form action="{{ url_for('edit') }}" method="post">
+        Title: <input type="text" size="30" name="title" value="{{entry.title}}"><br>
+        Text: <textarea name="content" rows="5" cols="40">{{entry.content}}</textarea><br>
+        Update date and time of post? <input type="checkbox" name="changedate" value="yes"><br>
+        <input type="hidden" name="step" value="update_database">
+        <input type="hidden" name="postid" value="{{entry.id}}">
+        <input type="submit">
+        </form>
+        
+    {% elif step == "update_database" %}
+        Thanks for making your changes!
+        <p>
+        <a href="{{ url_for('homepage') }}">Back to homepage</a>
+    {% endif %}
+</body>
+</html>
