@@ -34,6 +34,8 @@ def browse():
     
 @app.route("/write", methods=['get', 'post'])
 def write():
+    debug("form data=" + str(request.form))
+
     # Step 1, display form
     if "step" not in request.form:     
         return render_template('write.html', step="compose_entry")
@@ -41,7 +43,7 @@ def write():
     # Step 2, add blog post to database.
     elif request.form["step"] == "add_entry":
         db = get_db()
-        db.execute("insert into entries (date, title, content) values (datetime('now'), ?, ?)",
+        db.execute("insert into entries (date, title, content) values (datetime('now', 'localtime'), ?, ?)",
                    [request.form['title'], request.form['content']])
         db.commit()
         return render_template("write.html", step="add_entry")
@@ -49,6 +51,7 @@ def write():
 @app.route("/edit", methods=['get', 'post'])
 def edit():
     debug("form data=" + str(request.form))
+
     # Step 1, display form to select which entry to edit
     if "step" not in request.form:
         db = get_db()
@@ -87,7 +90,7 @@ def edit():
         
         # run our UPDATE
         if changedate:
-            db.execute("update entries set title=?, content=?, date=datetime('now') where id=?",
+            db.execute("update entries set title=?, content=?, date=datetime('now', 'localtime') where id=?",
                        [request.form['title'], request.form['content'], postid])
         else:
             db.execute("update entries set title=?, content=? where id=?", 
