@@ -21,11 +21,13 @@
 	* For Zone, choose **us-central1-c**.
 	* For Machine Type, pick **small** (1 shared vCPU, 1.7 GB memory).
 	* Under Boot Disk, and Networking, leave everything alone.
-	![](sql-setup.png	)
+	![](sql-setup.png)
 4. Click the blue **Deploy** button.
 5. The machine will be set up and initialized, which might take a few minutes.  Eventually you will see a green checkbox with the message that your machine has been deployed.
+
 	![](deployed.png)
 6. Take note of the master password to the right:
+
 	![](change-sql-pass.png)
 
 ## Changing the database master password
