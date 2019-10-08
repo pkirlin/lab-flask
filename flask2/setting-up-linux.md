@@ -78,6 +78,7 @@ The next step is to get familiar with the Linux environment on the Google Cloud 
 	
 3. Luckily, GCP has a visual code editor!  Let's open it.  Click the image of a pencil near the top of the shell.  The visual editor opens!
 4. Choose File -> New.  Name the file hello.py.  Make sure the file is in the hello directory (drag it into the hello directory in the left panel listing all your files).
+
 	![](cloud-editor.png)
 	
 5. In the code area, type `print("Hello world!")`.  The file will be saved automatically, but you can choose File-> Save to be sure.
