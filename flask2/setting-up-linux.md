@@ -20,7 +20,7 @@ The next step is to get familiar with the Linux environment on the Google Cloud 
 
 ## Familiarizing yourself with Linux 
 
-**If you already know Linux you can skip this section.**
+**If you already know Linux you can skip this section and go straight to "Writing and running a simple Python program" below**
 
 1. Linux is a command-line based operating system (though there are graphical interfaces that can run on top of it).  That means the primary way to interact with the operating system is through typing commands.  
 2. The "prompt" in the Linux shell is where you type the commands.    Take a look at the prompt (it will look slightly different for you):
