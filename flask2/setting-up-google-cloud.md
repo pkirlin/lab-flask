@@ -58,6 +58,7 @@ that's ok for this class).
 	`\q` 
 	
 	and press ENTER.
+
 	![](change-pass.png)
 	
 7. Now type `logout` and press ENTER.  The window will close.
