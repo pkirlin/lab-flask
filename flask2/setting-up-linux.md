@@ -76,7 +76,7 @@ The next step is to get familiar with the Linux environment on the Google Cloud 
 	Notice how our prompt changes to reflect that we are now in the 
 	newly-created hello directory.
 	
-3. Luckily, GCP has a visual code editor!  Let's open it.  Click the image of a pencil near the top of the shell.  The visual editor opens!
+3. Luckily, GCP has a visual code editor!  Let's open it.  Click the image of a pencil near the top of the shell.  ![](pencil.png)The visual editor opens!
 4. Choose File -> New.  Name the file hello.py.  Make sure the file is in the hello directory (drag it into the hello directory in the left panel listing all your files).
 
 	![](cloud-editor.png)
