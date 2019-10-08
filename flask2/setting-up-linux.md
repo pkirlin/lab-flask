@@ -41,7 +41,7 @@ The next step is to get familiar with the Linux environment on the Google Cloud 
 
 	`ls` List files
 	
-	`ls -l` List files with extra info
+	`ls -l` List files with extra info (that's a lowercase 'L' at the end, not a the number one)
 	
 	`cd` Return to your home directory
 	
