@@ -3,12 +3,11 @@
 import os
 import psycopg2
 import psycopg2.extras
-from flask import Flask, request, render_template, g
+from flask import Flask, request, render_template, g, current_app
+from flask.cli import with_appcontext
+import click
 
-# PostgreSQL IP address
-IP_ADDR = "YOUR IP ADDRESS"
-
-# Create the application
+# initialize Flask
 app = Flask(__name__)
 
 ####################################################
@@ -20,8 +19,8 @@ def homepage():
 
 @app.route("/dump")
 def dump_entries():
-    db = get_db()
-    cursor = db.cursor()
+    conn = get_db()
+    cursor = conn.cursor()
     cursor.execute('select id, date, title, content from entries order by date')
     rows = cursor.fetchall()
     output = ""
@@ -29,11 +28,12 @@ def dump_entries():
         debug(str(dict(r)))
         output += str(dict(r))
         output += "\n"
+    return "<pre>" + output + "</pre>"
 
 @app.route("/browse")
 def browse():
-    db = get_db()
-    cursor = db.cursor()
+    conn = get_db()
+    cursor = conn.cursor()
     cursor.execute('select id, date, title, content from entries order by date')
     rowlist = cursor.fetchall()
     return render_template('browse.html', entries=rowlist)
@@ -46,11 +46,11 @@ def write():
     
     # Step 2, add blog post to database.
     elif request.form["step"] == "add_entry":
-        db = get_db()
-        cursor = db.cursor()
+        conn = get_db()
+        cursor = conn.cursor()
         cursor.execute("insert into entries (title, content) values (%s, %s)",
                    [request.form['title'], request.form['content']])
-        db.commit()
+        conn.commit()
         return render_template("write.html", step="add_entry")
 
 @app.route("/edit", methods=['get', 'post'])
@@ -58,8 +58,8 @@ def edit():
     debug("form data=" + str(request.form))
     # Step 1, display form to select which entry to edit
     if "step" not in request.form:
-        db = get_db()
-        cursor = db.cursor()
+        conn = get_db()
+        cursor = conn.cursor()
         cursor.execute('select id, date, title, content from entries order by date')
         rowlist = cursor.fetchall()
         return render_template('edit.html', step="display_entries", entries=rowlist)
@@ -67,8 +67,8 @@ def edit():
     # Step 2, get postID from form, SELECT this post from the db, and display
     # a form to edit that post.    
     elif request.form["step"] == "make_edits":
-        db = get_db()
-        cursor = db.cursor()
+        conn = get_db()
+        cursor = conn.cursor()
         # get the postID from the form
         postid = int(request.form["postid"])
         debug("Using postid=" + str(postid))
@@ -83,8 +83,8 @@ def edit():
         
     # Step 3, user has changed post, now update the DB with changes
     elif request.form["step"] == "update_database":
-        db = get_db()
-        cursor = db.cursor()
+        conn = get_db()
+        cursor = conn.cursor()
         
         # get the postID from the form
         postid = int(request.form["postid"])
@@ -102,7 +102,7 @@ def edit():
         else:
             cursor.execute("update entries set title=%s, content=%s where id=%s", 
                        [request.form['title'], request.form['content'], postid])
-        db.commit()
+        conn.commit()
         return render_template("edit.html", step="update_database")
 
 @app.route("/delete", methods=['get', 'post'])
@@ -111,24 +111,33 @@ def delete():
     
     # Step 1, display form to select which entry to delete
     if "step" not in request.form:
-        db = get_db()
-        cursor = db.cursor()
+        conn = get_db()
+        cursor = conn.cursor()
         cursor.execute('select id, date, title, content from entries order by date')
         rowlist = cursor.fetchall()
         return render_template('delete.html', step="display_entries", entries=rowlist)
         
     # Step 2, user has changed post, now update the DB with changes
     elif request.form["step"] == "delete_entry":
-        db = get_db()
-        cursor = db.cursor()
+        conn = get_db()
+        cursor = conn.cursor()
         
         # get the postID from the form
         postid = int(request.form["postid"])
         
         # run our DELETE
         cursor.execute("delete from entries where id=%s", [postid])
-        db.commit()
+        conn.commit()
         return render_template("delete.html", step="delete_entry")
+
+def dump_entries():
+    conn = get_db()
+    cur = conn.cursor()
+    cur.execute("select * from entries")
+    rows = cur.fetchall()
+    print("Here are the entries:")
+    print(rows)
+    
 
 #####################################################
 # Database handling 
@@ -136,52 +145,58 @@ def delete():
 def connect_db():
     """Connects to the database."""
     debug("Connecting to DB.")
-    conn = psycopg2.connect(host=IP_ADDR, user="postgres", password="rhodes", dbname="blogdb", 
+    conn = psycopg2.connect(host="database.rhodescs.org", user="sample", password="sample", dbname="practice", 
         cursor_factory=psycopg2.extras.DictCursor)
     return conn
     
 def get_db():
-    """Opens a new database connection if there is none yet for the
-    current application context.
+    """Retrieve the database connection or initialize it. The connection
+    is unique for each request and will be reused if this is called again.
     """
-    if not hasattr(g, 'pg_db'):
-        g.pg_db = connect_db()
-    return g.pg_db
+    if "db" not in g:
+        g.db = connect_db()
+
+    return g.db
     
 @app.teardown_appcontext
-def close_db(error):
-    """Closes the database automatically when the application
-    context ends."""
-    debug("Disconnecting from DB.")
-    if hasattr(g, 'pg_db'):
-        g.pg_db.close()
+def close_db(e=None):
+    """If this request connected to the database, close the
+    connection.
+    """
+    db = g.pop("db", None)
 
-######################################################
-# Command line utilities 
-        
+    if db is not None:
+        db.close()
+        debug("Closing DB")
+
+@app.cli.command("initdb")
 def init_db():
-    db = get_db()
-    with app.open_resource('schema.sql', mode='r') as f:
-        db.cursor().execute(f.read())
-    db.commit()
-
-@app.cli.command('initdb')
-def init_db_command():
-    """Initializes the database."""
-    print("Initializing DB.")
-    init_db()
-
-def populate_db():
-    db = get_db()
-    with app.open_resource('populate.sql', mode='r') as f:
-        db.cursor().execute(f.read())
-    db.commit()
+    """Clear existing data and create new tables."""
+    conn = get_db()
+    cur = conn.cursor()
+    with current_app.open_resource("schema.sql") as file: # open the file
+        alltext = file.read() # read all the text
+        cur.execute(alltext) # execute all the SQL in the file
+    conn.commit()
+    print("Initialized the database.")
 
 @app.cli.command('populate')
-def populate_db_command():
-    """Populates the database with sample data."""
-    print("Populating DB with sample data.")
-    populate_db()
+def populate_db():
+    conn = get_db()
+    cur = conn.cursor()
+    with current_app.open_resource("populate.sql") as file: # open the file
+        alltext = file.read() # read all the text
+        cur.execute(alltext) # execute all the SQL in the file
+    conn.commit()
+    print("Populated DB with sample data.")
+    dump_entries()
+
+#def init_app(app):
+#    """Register database functions with the Flask app. This is called by
+#    the application factory.
+#    """
+#    app.teardown_appcontext(close_db)
+#    app.cli.add_command(init_db_command)
     
     
 #####################################################
@@ -192,3 +207,9 @@ def debug(s):
     if FLASK_DEBUG is set."""
     if app.config['DEBUG']:
         print(s)
+
+########## Start running
+
+# Create the application
+if __name__ == "__main__":
+    app.run(host='0.0.0.0', port=8080, debug=True)
