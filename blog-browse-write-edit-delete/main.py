@@ -145,7 +145,7 @@ def dump_entries():
 def connect_db():
     """Connects to the database."""
     debug("Connecting to DB.")
-    conn = psycopg2.connect(host="database.rhodescs.org", user="sample", password="sample", dbname="practice", 
+    conn = psycopg2.connect(host="database.rhodescs.org", user="", password="", dbname="practice", 
         cursor_factory=psycopg2.extras.DictCursor)
     return conn
     
