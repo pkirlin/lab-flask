@@ -14,7 +14,7 @@ app = Flask(__name__)
 # Routes
 
 @app.route("/")
-def homepage():
+def index():
     return render_template("home.html")
 
 @app.route("/dump")
@@ -28,7 +28,7 @@ def dump_entries():
         debug(str(dict(r)))
         output += str(dict(r))
         output += "\n"
-    return "<pre>" + output + "</pre>"
+    return "SQL dump below:\n<pre>" + output + "</pre>"
 
 @app.route("/browse")
 def browse():
@@ -169,7 +169,7 @@ def close_db(e=None):
         db.close()
         debug("Closing DB")
 
-@app.cli.command("initdb")
+@app.cli.command("init")
 def init_db():
     """Clear existing data and create new tables."""
     conn = get_db()
